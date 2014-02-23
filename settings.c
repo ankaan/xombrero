@@ -80,6 +80,7 @@ int		enable_scripts = XT_DS_ENABLE_SCRIPTS;
 int		enable_plugins = XT_DS_ENABLE_PLUGINS;
 double		default_zoom_level = XT_DS_DEFAULT_ZOOM_LEVEL;
 char		default_script[PATH_MAX];	/* special setting - is never g_free'd */
+char		history_script[PATH_MAX];	/* special setting - is never g_free'd */
 int		refresh_interval = XT_DS_REFRESH_INTERVAL; /* download refresh interval */
 int		enable_plugin_whitelist = XT_DS_ENABLE_PLUGIN_WHITELIST;
 int		enable_cookie_whitelist = XT_DS_ENABLE_COOKIE_WHITELIST;
@@ -130,6 +131,7 @@ char		*tabbar_font_name = NULL;
 
 char		*get_download_dir(struct settings *);
 char		*get_default_script(struct settings *);
+char		*get_history_script(struct settings *);
 char		*get_runtime_dir(struct settings *);
 char		*get_tab_style(struct settings *);
 char		*get_statusbar_style(struct settings *);
@@ -166,6 +168,8 @@ int		set_download_dir(struct settings *, char *);
 int		set_download_notifications(char *);
 int		set_default_script(struct settings *, char *);
 int		set_default_script_rt(char *);
+int		set_history_script(struct settings *, char *);
+int		set_history_script_rt(char *);
 int		set_default_zoom_level(char *);
 int		set_enable_cookie_whitelist(char *);
 int		set_enable_js_autorun(char *);
@@ -236,6 +240,7 @@ int		check_cookie_policy(char **);
 int		check_cookies_enabled(char **);
 int		check_ctrl_click_focus(char **);
 int		check_default_script(char **);
+int		check_history_script(char **);
 int		check_default_zoom_level(char **);
 int		check_download_dir(char **);
 int		check_download_mode(char **);
@@ -411,6 +416,13 @@ struct special		s_default_script = {
 	{ NULL }
 };
 
+struct special		s_history_script = {
+	set_history_script,
+	get_history_script,
+	NULL,
+	{ NULL }
+};
+
 struct special		s_ssl_ca_file = {
 	set_ssl_ca_file,
 	get_ssl_ca_file,
@@ -502,6 +514,7 @@ struct special		s_gnutls_priority_string = {
 	{ NULL }
 };
 
+
 struct settings		rs[] = {
 	{ "allow_insecure_content",	XT_S_BOOL, 0,		&allow_insecure_content, NULL, NULL, NULL, set_allow_insecure_content, check_allow_insecure_content, TT_ALLOW_INSECURE_CONTENT },
 	{ "allow_insecure_scripts",	XT_S_BOOL, 0,		&allow_insecure_scripts, NULL, NULL, NULL, set_allow_insecure_scripts, check_allow_insecure_scripts, TT_ALLOW_INSECURE_SCRIPTS},
@@ -517,6 +530,7 @@ struct settings		rs[] = {
 	{ "cookies_enabled",		XT_S_BOOL, 0,		&cookies_enabled, NULL, NULL, NULL, set_cookies_enabled, check_cookies_enabled, TT_COOKIES_ENABLED },
 	{ "ctrl_click_focus",		XT_S_BOOL, 0,		&ctrl_click_focus, NULL, NULL, NULL, set_ctrl_click_focus, check_ctrl_click_focus, TT_CTRL_CLICK_FOCUS },
 	{ "default_script",		XT_S_STR, 1, NULL, NULL,&s_default_script, NULL, set_default_script_rt, check_default_script, TT_DEFAULT_SCRIPT },
+	{ "history_script",		XT_S_STR, 1, NULL, NULL,&s_history_script, NULL, set_history_script_rt, check_history_script, TT_HISTORY_SCRIPT },
 	{ "default_zoom_level",		XT_S_FLOAT, 0,		NULL, NULL, NULL, &default_zoom_level, set_default_zoom_level, check_default_zoom_level, TT_DEFAULT_ZOOM_LEVEL },
 	{ "do_not_track",		XT_S_BOOL, 0,		&do_not_track, NULL, NULL, NULL, set_do_not_track, check_do_not_track, TT_DO_NOT_TRACK },
 	{ "download_dir",		XT_S_STR, 0, NULL, NULL,&s_download_dir, NULL, NULL, check_download_dir, TT_DOWNLOAD_DIR },
@@ -1257,6 +1271,36 @@ set_default_script_rt(char *value)
 	if (value == NULL || strlen(value) == 0)
 		return set_default_script(NULL, "");
 	return (set_default_script(NULL, value));
+}
+
+char *
+get_history_script(struct settings *s)
+{
+	if (history_script[0] == '\0')
+		return (0);
+	return (g_strdup(history_script));
+}
+
+int
+set_history_script(struct settings *s, char *val)
+{
+	expand_tilde(history_script, sizeof history_script, val);
+	return (0);
+}
+
+int
+check_history_script(char **tt)
+{
+	*tt = g_strdup("Default: (empty)");
+	return (g_strcmp0(history_script, XT_DS_DEFAULT_SCRIPT));
+}
+
+int
+set_history_script_rt(char *value)
+{
+	if (value == NULL || strlen(value) == 0)
+		return set_history_script(NULL, "");
+	return (set_history_script(NULL, value));
 }
 
 int

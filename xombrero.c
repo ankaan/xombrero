@@ -4120,6 +4120,7 @@ notify_icon_loaded_cb(WebKitWebView *wv, gchar *uri, struct tab *t)
 void
 notify_load_status_cb(WebKitWebView* wview, GParamSpec* pspec, struct tab *t)
 {
+	time_t now;
 	const gchar		*uri = NULL;
 	struct history		*h, find;
 	struct karg		a;
@@ -4259,6 +4260,10 @@ notify_load_status_cb(WebKitWebView* wview, GParamSpec* pspec, struct tab *t)
 
 		input_autofocus(t);
 
+		now = time(NULL);
+
+		run_history_script(tmp_uri, get_title(t, FALSE), now);
+
 		if (!strncmp(tmp_uri, "http://", strlen("http://")) ||
 		    !strncmp(tmp_uri, "https://", strlen("https://")) ||
 		    !strncmp(tmp_uri, "file://", strlen("file://"))) {
@@ -4266,7 +4271,7 @@ notify_load_status_cb(WebKitWebView* wview, GParamSpec* pspec, struct tab *t)
 			h = RB_FIND(history_list, &hl, &find);
 			if (!h)
 				insert_history_item(tmp_uri,
-				    get_title(t, FALSE), time(NULL));
+				    get_title(t, FALSE), now);
 			else
 				h->time = time(NULL);
 		}

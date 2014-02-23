@@ -425,6 +425,7 @@ void	soup_cookie_jar_add_cookie(SoupCookieJar *, SoupCookie *);
 void	soup_cookie_jar_delete_cookie(SoupCookieJar *, SoupCookie *);
 
 /* history */
+int			run_history_script(const gchar *uri, const gchar *title, time_t time);
 int			insert_history_item(const gchar *uri, const gchar *title, time_t time);
 int			save_global_history_to_disk(struct tab *t);
 int			restore_global_history(void);
@@ -1015,3 +1016,5 @@ extern PangoFontDescription	*cmd_font;
 extern PangoFontDescription	*oops_font;
 extern PangoFontDescription	*statusbar_font;
 extern PangoFontDescription	*tabbar_font;
+
+extern char	history_script[PATH_MAX];

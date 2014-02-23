@@ -65,6 +65,29 @@ purge_history(void)
 }
 
 int
+run_history_script(const gchar *uri, const gchar *title, time_t time)
+{
+	char script[PATH_MAX];
+	char *sv[5];
+
+	if (history_script[0] == '\0')
+		return (0);
+
+	expand_tilde(script, sizeof script, history_script);
+
+	sv[0] = script;
+	sv[1] = (char *)uri;
+	sv[2] = (char *)title;
+	sv[3] = ctime(&time);
+	sv[4] = NULL;
+	if (!g_spawn_async(NULL, sv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL,
+	    NULL, NULL))
+		return (1);
+
+	return (0);
+}
+
+int
 insert_history_item(const gchar *uri, const gchar *title, time_t time)
 {
 	struct history		*h;
